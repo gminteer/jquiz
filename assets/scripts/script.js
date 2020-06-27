@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 import { titleScreen } from './title_screen.js';
 import { gameScreen } from './game_screen.js';
-let mainEl = document.querySelector("main");
+const headerEl = document.querySelector('header');
+const mainEl = document.querySelector('main');
 
 function runGameScreen() {
   mainEl.textContent = '';
