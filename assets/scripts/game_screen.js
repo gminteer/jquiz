@@ -3,10 +3,38 @@ import {questions} from './questions.js';
 
 /* module globals */
 let score = 0;
-let timer = 120;
+let timeLeft = 0;
 let questionIndex = 0;
 
-function generateLayout(divEl) {
+function generateLayout(divEl, headerEl) {
+  // the header
+  const titleEl = headerEl.querySelector('h1');
+  let titleFragment = document.createDocumentFragment();
+  const titleText = document.createElement('span');
+  titleText.id = 'game-title-text';
+  titleText.textContent = 'Question: ';
+  titleFragment.appendChild(titleText);
+  const titleValue = document.createElement('span');
+  titleValue.id = 'game-title-value';
+  titleValue.textContent = questionIndex + 1;
+  titleFragment.appendChild(titleValue);
+  titleEl.textContent = '';
+  titleEl.appendChild(titleFragment);
+  // the body
+  const headerFloatEl = headerEl.querySelector('#header-span');
+  let headerSpanFragment = document.createDocumentFragment();
+  const timerEl = document.createElement('div');
+  const timerValue = document.createElement('span');
+  timerValue.id = 'game-timer-value';
+  timerValue.textContent = timeLeft;
+  headerSpanFragment.appendChild(timerValue);
+  const timerText = document.createElement('span');
+  timerText.id = 'game-timer-text';
+  timerText.textContent = "s left";
+  headerSpanFragment.appendChild(timerText);
+  headerFloatEl.textContent = '';
+  headerFloatEl.appendChild(headerSpanFragment);
+
   const questionCardEl = document.createElement('div');
   questionCardEl.id = 'question-card';
   const questionTextEl = document.createElement('p');
@@ -16,7 +44,7 @@ function generateLayout(divEl) {
   questionCardEl.appendChild(questionTextEl);
   questionCardEl.appendChild(answerBlockEl);
   divEl.appendChild(questionCardEl);
-  return questionCardEl;
+  return [questionCardEl, timerValue];
 }
 
 function renderQuestion(questionCardEl, question) {
@@ -39,6 +67,9 @@ function renderQuestion(questionCardEl, question) {
   answerEl.textContent = '';
   answerEl.appendChild(answerFragment);
 }
+function renderTimer(timerValueEl) {
+  timerValueEl.textContent = timeLeft;
+}
 
 function getQuestion() {
   // TODO: question selection
@@ -52,11 +83,20 @@ function getQuestion() {
   questionIndex++;
   return question;
 }
-function gameScreen(divEl) {
-  const questionCardEl = generateLayout(divEl);
+function gameScreen(divEl, headerEl) {
+  timeLeft = 120;
+  const [questionCardEl, timerBlockEl]  = generateLayout(divEl, headerEl);
   const answerBlockEl = questionCardEl.querySelector("#answer-block");
   let question = getQuestion();
   renderQuestion(questionCardEl, question);
+  const timer = window.setInterval(() => {
+    renderTimer(timerBlockEl);
+    timeLeft--;
+    if(timeLeft < 0) {
+      divEl.dispatchEvent(new CustomEvent('gameOver', {detail: {score: score}}));
+      window.clearInterval(timer);
+    }
+  }, 1000);
   answerBlockEl.addEventListener('click', (event) => {
     switch(question.type) {
       case 'boolean':
@@ -71,11 +111,14 @@ function gameScreen(divEl) {
   });
   let rightAnswerListener = divEl.addEventListener('rightAnswer', () => {
     console.log('right!');
+    score += 1;
     question = getQuestion();
     renderQuestion(questionCardEl, question);
   });
   let wrongAnswerListener = divEl.addEventListener('wrongAnswer', () => {
     console.log('wrong!');
+    timeLeft -= 5;
+    if(timeLeft < 0) timeLeft = 0;
   });
 }
 
