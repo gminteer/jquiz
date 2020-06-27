@@ -1,23 +1,30 @@
 /* jshint esversion:6 */
-const todo_questions = [{
-  "text": "This is a question?",
-  "type": "multipleChoice",
-  "answers": [{
-    text: "This answer is correct.",
-    isCorrect: true
-  },{
-    text: "This answer is wrong.",
-    isCorrect: false
-  },{
-    text: "This answer isn't wrong.",
-    isCorrect: true
-  },{
-    text: "This answer isn't right.",
-    isCorrect: false
-  }]
-}];
+const todo_questions = [];
 
 const questionData = [
+  {
+    "text": "This is a question?",
+    "type": "multipleChoice",
+    "answers": {
+      "0": {
+        "text": "This answer is correct.",
+        "isRight": true
+      },
+      "1": {
+        "text": "This answer is wrong.",
+        "isRight": false
+      },
+      "2": {
+        "text": "This answer isn't wrong.",
+        "isRight": true
+      },
+      "3": {
+        "id": 3,
+        "text": "This answer isn't right.",
+        "isRight": false
+      }
+    }
+  },
   {
     "text": "This statement is true.",
     "type": "boolean",

@@ -43,8 +43,8 @@ const questions = {
     let answerFragment = document.createDocumentFragment();
     document.querySelector('#question-text').textContent = question.text;
     switch(question.type) {
-      case "boolean":
-        const trueBtnEl = document.createElement('button');
+      case 'boolean':
+        let trueBtnEl = document.createElement('button');
         trueBtnEl.classList.add('boolean-true');
         trueBtnEl.textContent = 'True';
         answerFragment.appendChild(trueBtnEl);
@@ -52,6 +52,15 @@ const questions = {
         falseBtnEl.textContent = 'False';
         falseBtnEl.classList.add('boolean-false');
         answerFragment.appendChild(falseBtnEl);
+      break;
+      case 'multipleChoice':
+        for(const key of Object.keys(question.answers)) {
+          let answerBtnEl = document.createElement('button');
+          answerBtnEl.classList.add('multipleChoice');
+          answerBtnEl.dataset.id = key;
+          answerBtnEl.textContent = question.answers[key].text;
+          answerFragment.appendChild(answerBtnEl);
+        }
       break;
     }
     answerEl.textContent = '';
@@ -67,6 +76,14 @@ const questions = {
       case 'boolean':
         const answerBool = event.target.classList.contains('boolean-true');
         if(answerBool == question.answer) {
+          eventTarget.dispatchEvent(new Event('rightAnswer'));
+        } else {
+          eventTarget.dispatchEvent(new Event('wrongAnswer'));
+        }
+      break;
+      case 'multipleChoice':
+        let answerId = event.target.dataset.id;
+        if(question.answers[answerId].isRight) {
           eventTarget.dispatchEvent(new Event('rightAnswer'));
         } else {
           eventTarget.dispatchEvent(new Event('wrongAnswer'));
