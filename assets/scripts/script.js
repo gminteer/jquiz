@@ -1,27 +1,15 @@
 /* jshint esversion: 6 */
 import { titleScreen } from './title_screen.js';
 import { gameScreen } from './game_screen.js';
-const headerEl = document.querySelector('header');
-const mainEl = document.querySelector('main');
 
-function runGameScreen() {
-  mainEl.textContent = '';
-  gameScreen(mainEl, headerEl);
-  let awaitEvent = mainEl.addEventListener('gameOver', (event) => {
-    mainEl.removeEventListener('gameOver', awaitEvent);
-    window.alert(`Game over: final score was ${event.detail.score}`);
-    console.log(event);
-    runTitleScreen();
-  });
-}
+let headerEl = document.querySelector('header');
+let mainEl = document.querySelector('main');
 
-function runTitleScreen() {
-  mainEl.textContent = '';
-  titleScreen(mainEl, headerEl);
-  let awaitEvent = mainEl.addEventListener('startGame', () => {
-    mainEl.removeEventListener('startGame', awaitEvent);
-    runGameScreen();
-  });
-}
+let titleEvent = mainEl.addEventListener('runTitle', () => { titleScreen(mainEl, headerEl); });
+let gameEvent = mainEl.addEventListener('startGame', () => { gameScreen(mainEl, headerEl); });
+let gameOverEvent = mainEl.addEventListener('gameOver', (event) => {
+  window.alert(`Game over: final score was ${event.detail.score}`);
+  mainEl.dispatchEvent(new Event('runTitle'));
+});
 
-runTitleScreen();
+mainEl.dispatchEvent(new Event('runTitle'));

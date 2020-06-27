@@ -1,13 +1,28 @@
 /* jshint esversion:6 */
-function titleScreen(divEl, headerEl) {
-  const startBtnEl = document.createElement('button');
-  const titleEl = headerEl.querySelector('h1');
+var eventTarget;
+var clickTarget;
+function clickListener() {
+  eventTarget.dispatchEvent(new Event('startGame'));
+}
+
+function startGameListener() {
+  clickTarget.removeEventListener(clickListener);
+}
+function titleScreen(mainEl, headerEl) {
+  let titleEl = document.createElement('h1');
+  titleEl.id = 'title';
   titleEl.textContent = 'jQuiz!';
+  headerEl.textContent = '';
+  headerEl.appendChild(titleEl);
+
+  let startBtnEl = document.createElement('button');
   startBtnEl.textContent = 'Start Game';
-  startBtnEl.addEventListener('click', () => {
-    divEl.dispatchEvent(new Event('startGame'));
-  });
-  divEl.appendChild(startBtnEl);
+  // pass elements up to module global for event handling
+  eventTarget = mainEl;
+  clickTarget = startBtnEl;
+  clickTarget.addEventListener('click', clickListener);
+  mainEl.textContent = '';
+  mainEl.appendChild(startBtnEl);
 }
 
 export {titleScreen};

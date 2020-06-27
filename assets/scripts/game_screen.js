@@ -1,125 +1,169 @@
 /* jshint esversion:6 */
-import {questions} from './questions.js';
+import {questionData} from './question_data.js';
 
 /* module globals */
-let score = 0;
-let timeLeft = 0;
-let questionIndex = 0;
-
-function generateLayout(divEl, headerEl) {
-  // the header
-  const titleEl = headerEl.querySelector('h1');
-  let titleFragment = document.createDocumentFragment();
-  const titleText = document.createElement('span');
-  titleText.id = 'game-title-text';
-  titleText.textContent = 'Question: ';
-  titleFragment.appendChild(titleText);
-  const titleValue = document.createElement('span');
-  titleValue.id = 'game-title-value';
-  titleValue.textContent = questionIndex + 1;
-  titleFragment.appendChild(titleValue);
-  titleEl.textContent = '';
-  titleEl.appendChild(titleFragment);
-  // the body
-  const headerFloatEl = headerEl.querySelector('#header-span');
-  let headerSpanFragment = document.createDocumentFragment();
-  const timerEl = document.createElement('div');
-  const timerValue = document.createElement('span');
-  timerValue.id = 'game-timer-value';
-  timerValue.textContent = timeLeft;
-  headerSpanFragment.appendChild(timerValue);
-  const timerText = document.createElement('span');
-  timerText.id = 'game-timer-text';
-  timerText.textContent = "s left";
-  headerSpanFragment.appendChild(timerText);
-  headerFloatEl.textContent = '';
-  headerFloatEl.appendChild(headerSpanFragment);
-
-  const questionCardEl = document.createElement('div');
-  questionCardEl.id = 'question-card';
-  const questionTextEl = document.createElement('p');
-  questionTextEl.id = 'question-text';
-  const answerBlockEl = document.createElement('div');
-  answerBlockEl.id = 'answer-block';
-  questionCardEl.appendChild(questionTextEl);
-  questionCardEl.appendChild(answerBlockEl);
-  divEl.appendChild(questionCardEl);
-  return [questionCardEl, timerValue];
-}
-
-function renderQuestion(questionCardEl, question) {
-  const answerEl = document.querySelector('#answer-block');
-  let answerFragment = document.createDocumentFragment();
-  document.querySelector('#question-text').textContent = question.text;
-  switch(question.type) {
-    case "boolean":
-      const trueBtnEl = document.createElement('button');
-      trueBtnEl.classList.add('boolean-true');
-      trueBtnEl.textContent = 'True';
-      answerFragment.appendChild(trueBtnEl);
-
-      const falseBtnEl = document.createElement('button');
-      falseBtnEl.textContent = 'False';
-      falseBtnEl.classList.add('boolean-false');
-      answerFragment.appendChild(falseBtnEl);
-    break;
-  }
-  answerEl.textContent = '';
-  answerEl.appendChild(answerFragment);
-}
-function renderTimer(timerValueEl) {
-  timerValueEl.textContent = timeLeft;
-}
-
-function getQuestion() {
-  // TODO: question selection
-  let question = null;
-  console.log(`called ${questionIndex} times`);
-  if(questionIndex > questions.length - 1) {
-    question = questions[0];
-  } else {
-    question = questions[questionIndex];
-  }
-  questionIndex++;
-  return question;
-}
-function gameScreen(divEl, headerEl) {
-  timeLeft = 120;
-  const [questionCardEl, timerBlockEl]  = generateLayout(divEl, headerEl);
-  const answerBlockEl = questionCardEl.querySelector("#answer-block");
-  let question = getQuestion();
-  renderQuestion(questionCardEl, question);
-  const timer = window.setInterval(() => {
-    renderTimer(timerBlockEl);
-    timeLeft--;
-    if(timeLeft < 0) {
-      divEl.dispatchEvent(new CustomEvent('gameOver', {detail: {score: score}}));
-      window.clearInterval(timer);
+const timer = {
+  _counter: 0,
+  _gameOver: false,
+  reset() {
+    this._counter = 120;
+    this._gameOver = false;
+  },
+  tick(amount = 1) {
+    this._counter -= amount;
+    if(this._counter <= 0) {
+      this._counter = 0;
+      if(!this._gameOver) { // quick hack to stop multiple game overs by button mashing
+        eventTarget.dispatchEvent(new CustomEvent('gameOver', {detail: {score: score}}));
+        this._gameOver = true;
+      }
+      return false;
     }
-  }, 1000);
-  answerBlockEl.addEventListener('click', (event) => {
+    return true;
+  },
+  get timeLeft() {
+    return timer._counter;
+  }
+};
+const questions = {
+  _index: 0,
+  count: 0,
+  renderTarget: undefined,
+  reset() {
+    this.count = 0;
+    this._index = 0;
+  },
+  get currentQuestion() {
+    return questionData[this._index];
+  },
+  render() {
+    if(!this.renderTarget) throw new ReferenceError('missing render target');
+    let question = this.currentQuestion;
+    let answerEl = this.renderTarget.querySelector('#answer-block');
+    let answerFragment = document.createDocumentFragment();
+    document.querySelector('#question-text').textContent = question.text;
+    switch(question.type) {
+      case "boolean":
+        const trueBtnEl = document.createElement('button');
+        trueBtnEl.classList.add('boolean-true');
+        trueBtnEl.textContent = 'True';
+        answerFragment.appendChild(trueBtnEl);
+        const falseBtnEl = document.createElement('button');
+        falseBtnEl.textContent = 'False';
+        falseBtnEl.classList.add('boolean-false');
+        answerFragment.appendChild(falseBtnEl);
+      break;
+    }
+    answerEl.textContent = '';
+    answerEl.appendChild(answerFragment);
+  },
+  nextQuestion() {
+    this.count++;
+    this._index = (this.count - 1) % questionData.length;
+  },
+  handleAnswer(event) {
+    let question = questions.currentQuestion; // 'this' isn't the questions object here
     switch(question.type) {
       case 'boolean':
         const answerBool = event.target.classList.contains('boolean-true');
-        if(answerBool === question.answer){
-          divEl.dispatchEvent(new Event('rightAnswer'));
+        if(answerBool == question.answer) {
+          eventTarget.dispatchEvent(new Event('rightAnswer'));
         } else {
-          divEl.dispatchEvent(new Event('wrongAnswer'));
+          eventTarget.dispatchEvent(new Event('wrongAnswer'));
         }
       break;
     }
-  });
-  let rightAnswerListener = divEl.addEventListener('rightAnswer', () => {
-    console.log('right!');
-    score += 1;
-    question = getQuestion();
-    renderQuestion(questionCardEl, question);
-  });
-  let wrongAnswerListener = divEl.addEventListener('wrongAnswer', () => {
-    console.log('wrong!');
-    timeLeft -= 5;
-    if(timeLeft < 0) timeLeft = 0;
-  });
+  },
+};
+let header = {
+  renderTarget: undefined,
+  render() {
+    if(typeof this.renderTarget == 'undefined') throw new ReferenceError('missing render target');
+    let renderTarget = this.renderTarget;
+    renderTarget.querySelector('#game-question-counter > .value').textContent = questions.count;
+    renderTarget.querySelector('#game-score > .value').textContent = score;
+    renderTarget.querySelector('#game-timer > .value').textContent = timer.timeLeft;
+  }
+};
+let score = 0;
+var eventTarget;
+var clickTarget;
+var timerInterval;
+
+function generateHeader(headerType, label) {
+  let headerEl = document.createElement('div');
+  headerEl.id = headerType;
+  let headerLabelEl = document.createElement('span');
+  headerLabelEl.classList.add('label');
+  headerLabelEl.textContent = label;
+  headerEl.appendChild(headerLabelEl);
+  let headerValueEl = document.createElement('span');
+  headerValueEl.classList.add('value');
+  headerEl.appendChild(headerValueEl);
+  return headerEl;
+}
+function generateLayout(mainEl, headerEl) {
+  let headerFragment = document.createDocumentFragment();
+  headerFragment.appendChild(generateHeader('game-question-counter', 'Question:'));
+  headerFragment.appendChild(generateHeader('game-score', 'Score:'));
+  headerFragment.appendChild(generateHeader('game-timer', 'Time remaining:'));
+  headerEl.textContent = '';
+  headerEl.appendChild(headerFragment);
+  let questionEl = document.createElement('div');
+  questionEl.id = 'question-block';
+  let questionTextEl = document.createElement('p');
+  questionTextEl.id = 'question-text';
+  let answerBlockEl = document.createElement('div');
+  answerBlockEl.id = 'answer-block';
+  questionEl.appendChild(questionTextEl);
+  questionEl.appendChild(answerBlockEl);
+  mainEl.textContent = '';
+  mainEl.appendChild(questionEl);
+  return [questionEl, answerBlockEl];
+}
+
+function rightAnswerListener() {
+  if(questions.currentQuestion.pointValue) {
+    score += questions.currentQuestion.pointValue;
+  } else {
+    score++;
+  }
+  questions.nextQuestion();
+  questions.render();
+  header.render();
+}
+function wrongAnswerListener() {
+  if(timer.tick(5)) header.render();
+}
+function gameOverListener() {
+  eventTarget.removeEventListener('rightAnswer', rightAnswerListener);
+  eventTarget.removeEventListener('wrongAnswer', wrongAnswerListener);
+  eventTarget.removeEventListener('gameOver', gameOverListener);
+  clickTarget.removeEventListener('click', questions.handleAnswer);
+  window.clearInterval(timerInterval);
+}
+
+function gameScreen(mainEl, headerEl) {
+  // reset module globals
+  timer.reset();
+  questions.reset();
+  score = 0;
+  // set up HTML, display a question
+  let [questionEl, answerBlockEl] = generateLayout(mainEl, headerEl);
+  questions.renderTarget = questionEl;
+  questions.nextQuestion();
+  questions.render();
+  header.renderTarget = headerEl;
+  header.render();
+  // start countdown timer
+  timerInterval = window.setInterval(() => { if(timer.tick()) header.render(); }, 1000);
+  // pass elements up to module global for event handling
+  eventTarget = mainEl;
+  clickTarget = answerBlockEl;
+  eventTarget.addEventListener('rightAnswer', rightAnswerListener);
+  eventTarget.addEventListener('wrongAnswer', wrongAnswerListener);
+  eventTarget.addEventListener('gameOver', gameOverListener);
+  clickTarget.addEventListener('click', questions.handleAnswer);
 }
 
 export {gameScreen};
