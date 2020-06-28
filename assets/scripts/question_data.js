@@ -1,10 +1,16 @@
 /* jshint esversion:6 */
-const todo_questions = [];
+const todo_questions = [
+  {
+    "type": "textInput",
+    "text": "Spell \"banana\".",
+    "answer": "banana"
+  },
+];
 
 const questionData = [
   {
-    "text": "This is a question?",
     "type": "multipleChoice",
+    "text": "This is a question?",
     "answers": {
       "0": {
         "text": "This answer is correct.",
@@ -26,36 +32,36 @@ const questionData = [
     }
   },
   {
-    "text": "This statement is true.",
     "type": "boolean",
+    "text": "This statement is true.",
     "answer": true
   },
   {
-    "text": "This statement is false.",
     "type": "boolean",
+    "text": "This statement is false.",
     "answer": false
   },
   {
-    "text": "This statement is 2 true.",
     "type": "boolean",
+    "text": "This statement is 2 true.",
     "answer": true,
     "pointValue": 2
   },
   {
-    "text": "This statement is 2 false.",
     "type": "boolean",
+    "text": "This statement is 2 false.",
     "answer": false,
     "pointValue": 2
   },
   {
-    "text": "This statement is 3 true.",
     "type": "boolean",
+    "text": "This statement is 3 true.",
     "answer": true,
     "pointValue": 3
   },
   {
-    "text": "This statement is 3 false.",
     "type": "boolean",
+    "text": "This statement is 3 false.",
     "answer": false,
     "pointValue": 3
   }

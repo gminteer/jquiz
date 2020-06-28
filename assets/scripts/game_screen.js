@@ -47,10 +47,12 @@ const questions = {
         let trueBtnEl = document.createElement('button');
         trueBtnEl.classList.add('boolean-true');
         trueBtnEl.textContent = 'True';
+        trueBtnEl.type = 'submit';
         answerFragment.appendChild(trueBtnEl);
         const falseBtnEl = document.createElement('button');
-        falseBtnEl.textContent = 'False';
         falseBtnEl.classList.add('boolean-false');
+        falseBtnEl.textContent = 'False';
+        falseBtnEl.type = 'submit';
         answerFragment.appendChild(falseBtnEl);
       break;
       case 'multipleChoice':
@@ -59,8 +61,17 @@ const questions = {
           answerBtnEl.classList.add('multipleChoice');
           answerBtnEl.dataset.id = key;
           answerBtnEl.textContent = question.answers[key].text;
+          answerBtnEl.type = 'submit';
           answerFragment.appendChild(answerBtnEl);
         }
+      break;
+      case 'textInput':
+        let inputEl = document.createElement('input');
+        inputEl.type = 'text';
+        answerFragment.appendChild(inputEl);
+        let submitBtnEl = document.createElement('input');
+        submitBtnEl.type = 'submit';
+        answerFragment.appendChild(submitBtnEl);
       break;
     }
     answerEl.textContent = '';
@@ -71,10 +82,11 @@ const questions = {
     this._index = (this.count - 1) % questionData.length;
   },
   handleAnswer(event) {
+    event.preventDefault();
     let question = questions.currentQuestion; // 'this' isn't the questions object here
     switch(question.type) {
       case 'boolean':
-        const answerBool = event.target.classList.contains('boolean-true');
+        const answerBool = event.submitter.classList.contains('boolean-true');
         if(answerBool == question.answer) {
           eventTarget.dispatchEvent(new Event('rightAnswer'));
         } else {
@@ -82,12 +94,16 @@ const questions = {
         }
       break;
       case 'multipleChoice':
-        let answerId = event.target.dataset.id;
+        let answerId = event.submitter.dataset.id;
         if(question.answers[answerId].isRight) {
           eventTarget.dispatchEvent(new Event('rightAnswer'));
         } else {
           eventTarget.dispatchEvent(new Event('wrongAnswer'));
         }
+      break;
+      case 'textInput':
+        if(event.type == 'click') return;
+        console.log(event.target);
       break;
     }
   },
@@ -104,7 +120,7 @@ let header = {
 };
 let score = 0;
 var eventTarget;
-var clickTarget;
+var answerTarget;
 var timerInterval;
 
 function generateHeader(headerType, label) {
@@ -130,7 +146,7 @@ function generateLayout(mainEl, headerEl) {
   questionEl.id = 'question-block';
   let questionTextEl = document.createElement('p');
   questionTextEl.id = 'question-text';
-  let answerBlockEl = document.createElement('div');
+  let answerBlockEl = document.createElement('form');
   answerBlockEl.id = 'answer-block';
   questionEl.appendChild(questionTextEl);
   questionEl.appendChild(answerBlockEl);
@@ -156,7 +172,7 @@ function gameOverListener() {
   eventTarget.removeEventListener('rightAnswer', rightAnswerListener);
   eventTarget.removeEventListener('wrongAnswer', wrongAnswerListener);
   eventTarget.removeEventListener('gameOver', gameOverListener);
-  clickTarget.removeEventListener('click', questions.handleAnswer);
+  answerTarget.removeEventListener('submit', questions.handleAnswer);
   window.clearInterval(timerInterval);
 }
 
@@ -176,11 +192,11 @@ function gameScreen(mainEl, headerEl) {
   timerInterval = window.setInterval(() => { if(timer.tick()) header.render(); }, 1000);
   // pass elements up to module global for event handling
   eventTarget = mainEl;
-  clickTarget = answerBlockEl;
+  answerTarget = answerBlockEl;
   eventTarget.addEventListener('rightAnswer', rightAnswerListener);
   eventTarget.addEventListener('wrongAnswer', wrongAnswerListener);
   eventTarget.addEventListener('gameOver', gameOverListener);
-  clickTarget.addEventListener('click', questions.handleAnswer);
+  answerTarget.addEventListener('submit', questions.handleAnswer);
 }
 
 export {gameScreen};
