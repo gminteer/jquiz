@@ -15,6 +15,9 @@ const questions = {
   get currentQuestion() {
     return questionData[this._index];
   },
+  get length() {
+    return Object.keys(questionData).length;
+  },
   render() {
     if(!this.target) throw new ReferenceError('missing render target');
     let question = this.currentQuestion;
@@ -64,8 +67,8 @@ const questions = {
     answerEl.appendChild(answerFragment);
   },
   nextQuestion() {
-    this.count++;
     if(this._randomIndexes.length > 0) {
+      this.count++;
       this._index = this._randomIndexes.pop();
       return true;
     }

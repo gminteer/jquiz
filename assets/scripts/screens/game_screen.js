@@ -1,8 +1,14 @@
 /* jshint esversion:6 */
-
 import {questions} from '../game/questions.js';
+const gameOverEvent = () => new CustomEvent('gameOver', {
+  detail: {
+    score: score,
+    count: questions.count - 1, // questions.count is which question the player's on, which is 1 more than the number we want
+    length: questions.length,
+    timeLeft: timer.timeLeft
+  }
+});
 
-/* module globals */
 const timer = {
   _counter: 0,
   _gameOver: false,
@@ -15,7 +21,7 @@ const timer = {
     if(this._counter <= 0) {
       this._counter = 0;
       if(!this._gameOver) { // quick hack to stop multiple game overs by button mashing
-        eventTarget.dispatchEvent(new CustomEvent('gameOver', {detail: {score: score}}));
+        eventTarget.dispatchEvent(gameOverEvent());
         this._gameOver = true;
       }
       return false;
@@ -28,16 +34,17 @@ const timer = {
 };
 
 const header = {
-  renderTarget: undefined,
+  target: undefined,
   render() {
-    if(typeof this.renderTarget == 'undefined') throw new ReferenceError('missing render target');
-    let renderTarget = this.renderTarget;
-    renderTarget.querySelector('#game-question-counter > .value').textContent = questions.count;
-    renderTarget.querySelector('#game-score > .value').textContent = score;
-    renderTarget.querySelector('#game-timer > .value').textContent = timer.timeLeft;
+    if(typeof this.target == 'undefined') throw new ReferenceError('missing render target');
+    let target = this.target;
+    target.querySelector('#game-question-counter > .value').textContent = questions.count;
+    target.querySelector('#game-score > .value').textContent = score;
+    target.querySelector('#game-timer > .value').textContent = timer.timeLeft;
   }
 };
 
+/* module globals */
 let score = 0;
 var eventTarget;
 var answerTarget;
@@ -90,12 +97,7 @@ function wrongAnswerListener() {
   if(timer.tick(5)) header.render();
 }
 function outOfQuestionsListener() {
-  eventTarget.dispatchEvent(new CustomEvent('gameOver', {
-    detail: {
-      score: score,
-      timeLeft: timer.timeLeft
-    }
-  }));
+  eventTarget.dispatchEvent(gameOverEvent());
 }
 function gameOverListener() { // clean up callbacks we don't need anymore
   eventTarget.removeEventListener('rightAnswer', rightAnswerListener);
@@ -116,7 +118,7 @@ function gameScreen(mainEl, headerEl) {
   questions.target = questionEl;
   questions.nextQuestion();
   questions.render();
-  header.renderTarget = headerEl;
+  header.target = headerEl;
   header.render();
   // start countdown timer
   timerInterval = window.setInterval(() => {if(timer.tick()) header.render();}, 1000);
