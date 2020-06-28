@@ -87,9 +87,18 @@ function rightAnswerListener() {
 function wrongAnswerListener() {
   if(timer.tick(5)) header.render();
 }
+function outOfQuestionsListener() {
+  eventTarget.dispatchEvent(new CustomEvent('gameOver', {
+    detail: {
+      score: score,
+      timeLeft: timer.timeLeft
+    }
+  }));
+}
 function gameOverListener() {
   eventTarget.removeEventListener('rightAnswer', rightAnswerListener);
   eventTarget.removeEventListener('wrongAnswer', wrongAnswerListener);
+  eventTarget.removeEventListener('outOfQuestions', outOfQuestionsListener);
   eventTarget.removeEventListener('gameOver', gameOverListener);
   answerTarget.removeEventListener('submit', questions.handleAnswer);
   window.clearInterval(timerInterval);
@@ -108,12 +117,13 @@ function gameScreen(mainEl, headerEl) {
   header.renderTarget = headerEl;
   header.render();
   // start countdown timer
-  timerInterval = window.setInterval(() => { if(timer.tick()) header.render(); }, 1000);
+  timerInterval = window.setInterval(() => {if(timer.tick()) header.render();}, 1000);
   // pass elements up to module global for event handling
   eventTarget = mainEl;
   answerTarget = answerBlockEl;
   eventTarget.addEventListener('rightAnswer', rightAnswerListener);
   eventTarget.addEventListener('wrongAnswer', wrongAnswerListener);
+  eventTarget.addEventListener('outOfQuestions', outOfQuestionsListener);
   eventTarget.addEventListener('gameOver', gameOverListener);
   answerTarget.addEventListener('submit', questions.handleAnswer);
 }

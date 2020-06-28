@@ -3,11 +3,14 @@ import {questionData} from './question_data.js';
 
 const questions = {
   _index: 0,
+  _randomIndexes: [],
   count: 0,
   renderTarget: undefined,
   reset() {
     this.count = 0;
     this._index = 0;
+    this._randomIndexes = Object.keys(questionData);
+    this._randomIndexes.sort(() => 0.5 - Math.random());
   },
   get currentQuestion() {
     return questionData[this._index];
@@ -32,7 +35,9 @@ const questions = {
         answerFragment.appendChild(falseBtnEl);
       break;
       case 'multipleChoice':
-        for(const key of Object.keys(question.answers)) {
+        let randomChoiceOrder = Object.keys(question.answers);
+        randomChoiceOrder.sort(() => 0.5 - Math.random());
+        for(const key of randomChoiceOrder) {
           let answerBtnEl = document.createElement('button');
           answerBtnEl.classList.add('multipleChoice');
           answerBtnEl.dataset.id = key;
@@ -56,14 +61,17 @@ const questions = {
   },
   nextQuestion() {
     this.count++;
-    this._index = (this.count - 1) % questionData.length;
+    if(this._randomIndexes.length > 0) {
+      this._index = this._randomIndexes.pop();
+    } else {
+      this.renderTarget.dispatchEvent(new Event('outOfQuestions', {bubbles: true}));
+    }
   },
   handleAnswer(event) {
     let rightAnswerEvent = new Event('rightAnswer', {bubbles: true});
     let wrongAnswerEvent = new Event('wrongAnswer', {bubbles: true});
     event.preventDefault();
     let question = questions.currentQuestion; // 'this' isn't the questions object when events happen
-    console.log(this);
     switch(question.type) {
       case 'boolean':
         const answerBool = event.submitter.classList.contains('boolean-true');
@@ -83,7 +91,6 @@ const questions = {
       break;
       case 'textInput':
         let input = event.target.querySelector('#text-input').value.trim().toLowerCase();
-        console.log(input);
         if(question.answer == input) {
           let event = new Event('rightAnswer');
           this.dispatchEvent(rightAnswerEvent);
