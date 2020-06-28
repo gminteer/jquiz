@@ -20,7 +20,11 @@ const questions = {
     let question = this.currentQuestion;
     let answerEl = this.renderTarget.querySelector('#answer-block');
     let answerFragment = document.createDocumentFragment();
-    document.querySelector('#question-text').textContent = question.text;
+    let pointValue = '';
+    if(question.pointValue) {
+      pointValue = `(${question.pointValue} pts) `;
+    }
+    document.querySelector('#question-text').textContent = pointValue + question.text;
     switch(question.type) {
       case 'boolean':
         let trueBtnEl = document.createElement('button');
