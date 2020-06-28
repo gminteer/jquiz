@@ -6,8 +6,7 @@ import { scoreScreen } from './screens/score_screen.js';
 let headerEl = document.querySelector('header');
 let mainEl = document.querySelector('main');
 
-let titleEvent = mainEl.addEventListener('runTitle', (event) => { titleScreen(mainEl, headerEl, event); });
-let gameEvent = mainEl.addEventListener('startGame', () => { gameScreen(mainEl, headerEl); });
-let gameOverEvent = mainEl.addEventListener('gameOver', (event) => { scoreScreen(mainEl, headerEl, event); });
-
-mainEl.dispatchEvent(new Event('runTitle'));
+let titleEvent = document.body.addEventListener('runTitle', (event) => { titleScreen(mainEl, headerEl, event); });
+let gameEvent = document.body.addEventListener('startGame', () => { gameScreen(mainEl, headerEl); });
+let gameOverEvent = document.body.addEventListener('gameOver', (event) => { scoreScreen(mainEl, headerEl, event); });
+mainEl.dispatchEvent(new Event('runTitle', {bubbles: true}));

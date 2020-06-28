@@ -1,15 +1,5 @@
 /* jshint esversion:6 */
 var quizData;
-const runTitleEvent = (lastRunInitials, lastRunScore) => new CustomEvent(
-  'runTitle',
-  {
-    bubbles: true,
-    detail: {
-    lastRunInitials: lastRunInitials,
-    lastRunScore: lastRunScore
-    }
-  }
-);
 
 function generateHeader(headerEl, text, textClass) {
   let titleEl = document.createElement('h1');
@@ -17,6 +7,11 @@ function generateHeader(headerEl, text, textClass) {
   titleEl.textContent = text;
   headerEl.textContent = '';
   headerEl.appendChild(titleEl);
+  let backBtn = document.createElement('button');
+  backBtn.id = 'score-back-button';
+  backBtn.textContent = 'Back to Main Menu';
+  backBtn.addEventListener('click', clickListener);
+  headerEl.appendChild(backBtn);
 }
 function generateResultBlock(labels) {
   let resultsEl = document.createElement('div');
@@ -42,7 +37,7 @@ function renderResults(resultsEl, event) {
   scoreEl.textContent = `${detail.score} points`;
   countEl.textContent = `${detail.count} (of ${detail.length})`;
   if(Number(detail.timeLeft) > 0) {
-    timeLeftEl.textContent = `Finished with ${detail.timeLeft} seconds left`;
+    timeLeftEl.textContent = `${detail.timeLeft} seconds`;
   } else {
     timeLeftEl.textContent = '(out of time)';
   }
@@ -52,7 +47,7 @@ function generateResults() {
   let resultsEl = document.createElement('div');
   resultsEl.id = 'results';
   let resultsLabel = document.createElement('h2');
-  resultsLabel.textContent = 'Your results:';
+  resultsLabel.textContent = 'Your results';
   resultsEl.appendChild(resultsLabel);
   let labels = {
     'result-score': 'Score:',
@@ -67,6 +62,10 @@ function generateResults() {
 function generateInputForm() {
   let formEl = document.createElement('form');
   formEl.id = 'score-input';
+  let formTitleEl = document.createElement('h3');
+  formTitleEl.id('new-high-score-label');
+  formTitleEl.textContent = 'New high score!';
+  formEl.appendChild(formTitleEl);
   let formInputInitials = document.createElement('input');
   formInputInitials.id = 'initials-input';
   formInputInitials.type = 'text';
@@ -103,6 +102,7 @@ function runTitleListener() {
 }
 function clickListener() {
   this.removeEventListener('click', clickListener);
+  if(event.target.dataset.score) quizData.lastRun = {score: event.target.dataset.score, initials: '???'};
   this.dispatchEvent(new Event('runTitle', {bubbles: true}));
 }
 function submitListener(event) {
@@ -123,19 +123,26 @@ function submitListener(event) {
   } else {
     quizData.highScores = [{score: score, initials: initials}];
   }
-  this.dispatchEvent(runTitleEvent(initials, score));
+  quizData.lastRun = {score: score, initials: initials};
+  this.dispatchEvent(new Event('runTitle', {bubbles: true}));
 }
 function generateMain(mainEl, event) {
   let fragment = document.createDocumentFragment();
   if(event.detail) {
     let resultsEl = generateResults();
+    if(quizData.highScores && event.detail.score > Number(quizData.highScores[quizData.highScores.length - 1].score)) {
+      let formEl = generateInputForm();
+      let inputEl = formEl.querySelector('#initials-input');
+      inputEl.dataset.score = event.detail.score;
+      formEl.addEventListener('submit', submitListener);
+      resultsEl.appendChild(formEl);
+    } else {
+      let labelEl = document.createElement('h3');
+      labelEl.id = 'no-high-score';
+      labelEl.textContent = 'Better luck next time!';
+      resultsEl.appendChild(labelEl);
+    }
     fragment.appendChild(resultsEl);
-    let formEl = generateInputForm();
-    let inputEl = formEl.querySelector('#initials-input');
-    inputEl.dataset.score = event.detail.score;
-    formEl.addEventListener('submit', submitListener);
-    formEl.addEventListener('runTitle', runTitleListener);
-    fragment.appendChild(formEl);
   }
   if(quizData.highScores) {
     let highScoreDiv = document.createElement('div');
@@ -150,11 +157,6 @@ function generateMain(mainEl, event) {
     highScoreDiv.appendChild(highScoreTable);
     fragment.appendChild(highScoreDiv);
   }
-  let backBtn = document.createElement('button');
-  backBtn.id = 'score-back-button';
-  backBtn.textContent = 'Back to Main Menu';
-  backBtn.addEventListener('click', clickListener);
-  fragment.appendChild(backBtn);
   mainEl.textContent = '';
   mainEl.appendChild(fragment);
 }
@@ -168,10 +170,13 @@ function scoreScreen(mainEl, headerEl, event) {
   }
   if(event.detail) {
     generateHeader(headerEl, 'Game Over', 'game-over-label');
-  } else {
+    let backBtn = headerEl.querySelector('#score-back-button');
+    backBtn.dataset.score = event.detail.score;
+    } else {
     generateHeader(headerEl, 'High Scores', 'high-score-label');
   }
   generateMain(mainEl, event);
+  document.body.addEventListener('runTitle', runTitleListener);
 }
 
 export {scoreScreen};

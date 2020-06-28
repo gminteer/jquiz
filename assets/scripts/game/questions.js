@@ -100,7 +100,7 @@ const questions = {
       case 'textInput':
         let input = event.target.querySelector('#text-input').value.trim().toLowerCase();
         if(question.answer == input) {
-          let event = new Event('rightAnswer');
+          let event = new Event('rightAnswer', {bubbles: true});
           this.dispatchEvent(rightAnswerEvent);
         } else {
           this.dispatchEvent(wrongAnswerEvent);

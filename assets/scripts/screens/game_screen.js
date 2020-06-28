@@ -1,6 +1,7 @@
 /* jshint esversion:6 */
 import {questions} from '../game/questions.js';
 const gameOverEvent = () => new CustomEvent('gameOver', {
+  bubbles: true,
   detail: {
     score: score,
     count: questions.count - 1, // questions.count is which question the player's on, which is 1 more than the number we want
