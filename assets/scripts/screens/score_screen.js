@@ -1,10 +1,5 @@
 /* jshint esversion:6 */
-let quizData = localStorage.getItem('quizData');
-if(quizData) {
-  quizData = JSON.parse(quizData);
-} else {
-  quizData = {};
-}
+var quizData;
 const runTitleEvent = (lastRunInitials, lastRunScore) => new CustomEvent(
   'runTitle',
   {
@@ -16,26 +11,58 @@ const runTitleEvent = (lastRunInitials, lastRunScore) => new CustomEvent(
   }
 );
 
-function generateHeader(headerEl) {
+function generateHeader(headerEl, text, textClass) {
   let titleEl = document.createElement('h1');
-  titleEl.id = 'game-over';
+  titleEl.classList.add(textClass);
+  titleEl.textContent = text;
   headerEl.textContent = '';
   headerEl.appendChild(titleEl);
 }
-function generateTable(labels, tableType) {
-  let tableEl = document.createElement('table');
-  tableEl.classList.add(tableType);
+function generateResultBlock(labels) {
+  let resultsEl = document.createElement('div');
+  resultsEl.classList.add('results');
   for(const key of Object.keys(labels)) {
-    let tableRow = document.createElement('tr');
+    let rowEl = document.createElement('div');
+    rowEl.classList.add('result-row');
     let rowLabel = document.createElement('h3');
     rowLabel.textContent = labels[key];
-    tableRow.appendChild(rowLabel);
+    rowEl.appendChild(rowLabel);
     let rowValue = document.createElement('span');
     rowValue.id = key;
-    tableRow.appendChild(rowValue);
-    tableEl.appendChild(tableRow);
+    rowEl.appendChild(rowValue);
+    resultsEl.appendChild(rowEl);
   }
-  return tableEl;
+  return resultsEl;
+}
+function renderResults(resultsEl, event) {
+  let scoreEl = resultsEl.querySelector('#result-score');
+  let countEl = resultsEl.querySelector('#result-count');
+  let timeLeftEl = resultsEl.querySelector('#result-time-left');
+  let detail = event.detail;
+  scoreEl.textContent = `${detail.score} points`;
+  countEl.textContent = `${detail.count} (of ${detail.length})`;
+  if(Number(detail.timeLeft) > 0) {
+    timeLeftEl.textContent = `Finished with ${detail.timeLeft} seconds left`;
+  } else {
+    timeLeftEl.textContent = '(out of time)';
+  }
+}
+
+function generateResults() {
+  let resultsEl = document.createElement('div');
+  resultsEl.id = 'results';
+  let resultsLabel = document.createElement('h2');
+  resultsLabel.textContent = 'Your results:';
+  resultsEl.appendChild(resultsLabel);
+  let labels = {
+    'result-score': 'Score:',
+    'result-count': 'Questions Answered:',
+    'result-time-left': 'Time Remaining:'
+  };
+  let resultBlockEl = generateResultBlock(labels);
+  resultsEl.appendChild(resultBlockEl);
+  renderResults(resultsEl, event);
+  return resultsEl;
 }
 function generateInputForm() {
   let formEl = document.createElement('form');
@@ -54,18 +81,21 @@ function generateInputForm() {
   formEl.appendChild(formSubmitBtnEl);
   return formEl;
 }
-function renderResults(resultsEl, event) {
-  let scoreEl = resultsEl.querySelector('#result-score');
-  let countEl = resultsEl.querySelector('#result-count');
-  let timeLeftEl = resultsEl.querySelector('#result-time-left');
-  let detail = event.detail;
-  scoreEl.textContent = `${detail.score} points`;
-  countEl.textContent = `${detail.count} (of ${detail.length})`;
-  if(Number(detail.timeLeft) > 0) {
-    timeLeftEl.textContent = `Finished with ${detail.timeLeft} seconds left`;
-  } else {
-    timeLeftEl.textContent = '(out of time)';
+function generateHighScoreList() {
+  let tableEl = document.createElement('table');
+  tableEl.id = 'high-score-table';
+  for(let i = 0; i < quizData.highScores.length; i++) {
+    let rowEl = document.createElement('tr');
+    let rowData = [{place: i + 1},{initials: quizData.highScores[i].initials}, {score: quizData.highScores[i].score}];
+    for(const cellData of rowData) {
+      let cellEl = document.createElement('td');
+      cellEl.classList.add(Object.keys(cellData)[0]);
+      cellEl.textContent = Object.values(cellData)[0];
+      rowEl.appendChild(cellEl);
+    }
+    tableEl.appendChild(rowEl);
   }
+  return tableEl;
 }
 function runTitleListener() {
   this.removeEventListener('runTitle', runTitleListener);
@@ -97,21 +127,8 @@ function submitListener(event) {
 }
 function generateMain(mainEl, event) {
   let fragment = document.createDocumentFragment();
-  let quizData = {};
-  if(event) {
-    let resultsEl = document.createElement('div');
-    resultsEl.id = 'results';
-    let resultsLabel = document.createElement('h2');
-    resultsLabel.textContent = 'Your results:';
-    resultsEl.appendChild(resultsLabel);
-    let labels = {
-      'result-score': 'Score:',
-      'result-count': 'Questions Answered:',
-      'result-time-left': 'Time Remaining:'
-    };
-    let tableEl = generateTable(labels, 'results');
-    resultsEl.appendChild(tableEl);
-    renderResults(resultsEl, event);
+  if(event.detail) {
+    let resultsEl = generateResults();
     fragment.appendChild(resultsEl);
     let formEl = generateInputForm();
     let inputEl = formEl.querySelector('#initials-input');
@@ -120,9 +137,18 @@ function generateMain(mainEl, event) {
     formEl.addEventListener('runTitle', runTitleListener);
     fragment.appendChild(formEl);
   }
-  if(quizData.highScoresEl) {
-    let highScoresEl = document.createElement('section');
-    highScoresEl.id = 'high-scores';
+  if(quizData.highScores) {
+    let highScoreDiv = document.createElement('div');
+    highScoreDiv.id = 'high-score-container';
+    if(event.detail) { // insert a subheader if the main header is 'Game Over'
+      let highScoreLabel = document.createElement('h2');
+      highScoreLabel.classList.add('high-score-label');
+      highScoreLabel.textContent = 'High Scores';
+      highScoreDiv.appendChild(highScoreLabel);
+    }
+    let highScoreTable = generateHighScoreList();
+    highScoreDiv.appendChild(highScoreTable)
+    fragment.appendChild(highScoreDiv);
   }
   let backBtnEl = document.createElement('button');
   backBtnEl.id = 'score-back-button';
@@ -133,8 +159,18 @@ function generateMain(mainEl, event) {
   mainEl.appendChild(fragment);
 }
 
-function scoreScreen(mainEl, headerEl, event=undefined) {
-  generateHeader(headerEl);
+function scoreScreen(mainEl, headerEl, event) {
+  quizData = localStorage.getItem('quizData');
+  if(quizData) {
+    quizData = JSON.parse(quizData);
+  } else {
+    quizData = {};
+  }
+  if(event.detail) {
+    generateHeader(headerEl, 'Game Over', 'game-over-label');
+  } else {
+    generateHeader(headerEl, 'High Scores', 'high-score-label');
+  }
   generateMain(mainEl, event);
 }
 
