@@ -1,13 +1,14 @@
 /* jshint esversion:6 */
 const todo_questions = [
+
+];
+
+const questionData = [
   {
     "type": "textInput",
     "text": "Spell \"banana\".",
     "answer": "banana"
   },
-];
-
-const questionData = [
   {
     "type": "multipleChoice",
     "text": "This is a question?",

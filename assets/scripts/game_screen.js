@@ -68,6 +68,7 @@ const questions = {
       case 'textInput':
         let inputEl = document.createElement('input');
         inputEl.type = 'text';
+        inputEl.id = 'text-input';
         answerFragment.appendChild(inputEl);
         let submitBtnEl = document.createElement('input');
         submitBtnEl.type = 'submit';
@@ -102,8 +103,13 @@ const questions = {
         }
       break;
       case 'textInput':
-        if(event.type == 'click') return;
-        console.log(event.target);
+        let input = event.target.querySelector('#text-input').value.trim().toLowerCase();
+        console.log(input);
+        if(question.answer == input) {
+          eventTarget.dispatchEvent(new Event('rightAnswer'));
+        } else {
+          eventTarget.dispatchEvent(new Event('wrongAnswer'));
+        }
       break;
     }
   },
