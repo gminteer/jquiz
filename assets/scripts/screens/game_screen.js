@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-import {questions} from './game/questions.js';
+import {questions} from '../game/questions.js';
 
 /* module globals */
 const timer = {
@@ -27,7 +27,7 @@ const timer = {
   }
 };
 
-let header = {
+const header = {
   renderTarget: undefined,
   render() {
     if(typeof this.renderTarget == 'undefined') throw new ReferenceError('missing render target');
@@ -37,6 +37,7 @@ let header = {
     renderTarget.querySelector('#game-timer > .value').textContent = timer.timeLeft;
   }
 };
+
 let score = 0;
 var eventTarget;
 var answerTarget;
@@ -80,9 +81,10 @@ function rightAnswerListener() {
   } else {
     score++;
   }
-  questions.nextQuestion();
-  questions.render();
-  header.render();
+  if(questions.nextQuestion()) {
+    questions.render();
+    header.render();
+  }
 }
 function wrongAnswerListener() {
   if(timer.tick(5)) header.render();
@@ -95,7 +97,7 @@ function outOfQuestionsListener() {
     }
   }));
 }
-function gameOverListener() {
+function gameOverListener() { // clean up callbacks we don't need anymore
   eventTarget.removeEventListener('rightAnswer', rightAnswerListener);
   eventTarget.removeEventListener('wrongAnswer', wrongAnswerListener);
   eventTarget.removeEventListener('outOfQuestions', outOfQuestionsListener);
@@ -111,7 +113,7 @@ function gameScreen(mainEl, headerEl) {
   score = 0;
   // set up HTML, display a question
   let [questionEl, answerBlockEl] = generateLayout(mainEl, headerEl);
-  questions.renderTarget = questionEl;
+  questions.target = questionEl;
   questions.nextQuestion();
   questions.render();
   header.renderTarget = headerEl;

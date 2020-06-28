@@ -5,7 +5,7 @@ const questions = {
   _index: 0,
   _randomIndexes: [],
   count: 0,
-  renderTarget: undefined,
+  target: undefined,
   reset() {
     this.count = 0;
     this._index = 0;
@@ -16,9 +16,9 @@ const questions = {
     return questionData[this._index];
   },
   render() {
-    if(!this.renderTarget) throw new ReferenceError('missing render target');
+    if(!this.target) throw new ReferenceError('missing render target');
     let question = this.currentQuestion;
-    let answerEl = this.renderTarget.querySelector('#answer-block');
+    let answerEl = this.target.querySelector('#answer-block');
     let answerFragment = document.createDocumentFragment();
     let pointValue = '';
     if(question.pointValue) {
@@ -67,9 +67,10 @@ const questions = {
     this.count++;
     if(this._randomIndexes.length > 0) {
       this._index = this._randomIndexes.pop();
-    } else {
-      this.renderTarget.dispatchEvent(new Event('outOfQuestions', {bubbles: true}));
+      return true;
     }
+    this.target.dispatchEvent(new Event('outOfQuestions', {bubbles: true}));
+    return false;
   },
   handleAnswer(event) {
     let rightAnswerEvent = new Event('rightAnswer', {bubbles: true});

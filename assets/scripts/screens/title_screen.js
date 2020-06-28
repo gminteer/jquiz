@@ -1,8 +1,6 @@
 /* jshint esversion:6 */
-var eventTarget;
-var clickTarget;
 function clickListener() {
-  eventTarget.dispatchEvent(new Event('startGame'));
+  this.dispatchEvent(new Event('startGame', {bubbles: true}));
 }
 
 function startGameListener() {
@@ -17,10 +15,7 @@ function titleScreen(mainEl, headerEl) {
 
   let startBtnEl = document.createElement('button');
   startBtnEl.textContent = 'Start Game';
-  // pass elements up to module global for event handling
-  eventTarget = mainEl;
-  clickTarget = startBtnEl;
-  clickTarget.addEventListener('click', clickListener);
+  startBtnEl.addEventListener('click', clickListener);
   mainEl.textContent = '';
   mainEl.appendChild(startBtnEl);
 }
