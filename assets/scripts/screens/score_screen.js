@@ -147,7 +147,7 @@ function generateMain(mainEl, event) {
       highScoreDiv.appendChild(highScoreLabel);
     }
     let highScoreTable = generateHighScoreList();
-    highScoreDiv.appendChild(highScoreTable)
+    highScoreDiv.appendChild(highScoreTable);
     fragment.appendChild(highScoreDiv);
   }
   let backBtnEl = document.createElement('button');
