@@ -74,11 +74,11 @@ function generateInputForm() {
   let formLabelEl = document.createElement('label');
   formLabelEl.for = 'initials-input';
   formLabelEl.textContent = "Enter your initials:";
-  let formSubmitBtnEl = document.createElement('input');
-  formSubmitBtnEl.type = 'submit';
+  let formSubmitBtn = document.createElement('input');
+  formSubmitBtn.type = 'submit';
   formEl.appendChild(formLabelEl);
   formEl.appendChild(formInputInitials);
-  formEl.appendChild(formSubmitBtnEl);
+  formEl.appendChild(formSubmitBtn);
   return formEl;
 }
 function generateHighScoreList() {
@@ -150,11 +150,11 @@ function generateMain(mainEl, event) {
     highScoreDiv.appendChild(highScoreTable);
     fragment.appendChild(highScoreDiv);
   }
-  let backBtnEl = document.createElement('button');
-  backBtnEl.id = 'score-back-button';
-  backBtnEl.textContent = 'Back to Main Menu';
-  backBtnEl.addEventListener('click', clickListener);
-  fragment.appendChild(backBtnEl);
+  let backBtn = document.createElement('button');
+  backBtn.id = 'score-back-button';
+  backBtn.textContent = 'Back to Main Menu';
+  backBtn.addEventListener('click', clickListener);
+  fragment.appendChild(backBtn);
   mainEl.textContent = '';
   mainEl.appendChild(fragment);
 }

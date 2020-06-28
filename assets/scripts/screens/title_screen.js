@@ -17,15 +17,15 @@ function titleScreen(mainEl, headerEl, event=undefined) {
   headerEl.textContent = '';
   headerEl.appendChild(titleEl);
 
-  let startBtnEl = document.createElement('button');
-  startBtnEl.textContent = 'Start Game';
-  startBtnEl.addEventListener('click', startClickListener);
+  let startBtn = document.createElement('button');
+  startBtn.textContent = 'Start Game';
+  startBtn.addEventListener('click', startClickListener);
   mainEl.textContent = '';
-  mainEl.appendChild(startBtnEl);
-  let viewScoresBtnEl = document.createElement('button');
-  viewScoresBtnEl.textContent = 'View Scores';
-  viewScoresBtnEl.addEventListener('click', scoreClickListener);
-  mainEl.appendChild(viewScoresBtnEl);
+  mainEl.appendChild(startBtn);
+  let viewScoresBtn = document.createElement('button');
+  viewScoresBtn.textContent = 'View Scores';
+  viewScoresBtn.addEventListener('click', scoreClickListener);
+  mainEl.appendChild(viewScoresBtn);
 }
 
 export {titleScreen};

@@ -30,27 +30,27 @@ const questions = {
     document.querySelector('#question-text').textContent = pointValue + question.text;
     switch(question.type) {
       case 'boolean':
-        let trueBtnEl = document.createElement('button');
-        trueBtnEl.classList.add('boolean-true');
-        trueBtnEl.textContent = 'True';
-        trueBtnEl.type = 'submit';
-        answerFragment.appendChild(trueBtnEl);
-        const falseBtnEl = document.createElement('button');
-        falseBtnEl.classList.add('boolean-false');
-        falseBtnEl.textContent = 'False';
-        falseBtnEl.type = 'submit';
-        answerFragment.appendChild(falseBtnEl);
+        let trueBtn = document.createElement('button');
+        trueBtn.classList.add('boolean-true');
+        trueBtn.textContent = 'True';
+        trueBtn.type = 'submit';
+        answerFragment.appendChild(trueBtn);
+        const falseBtn = document.createElement('button');
+        falseBtn.classList.add('boolean-false');
+        falseBtn.textContent = 'False';
+        falseBtn.type = 'submit';
+        answerFragment.appendChild(falseBtn);
       break;
       case 'multipleChoice':
         let randomChoiceOrder = Object.keys(question.answers);
         randomChoiceOrder.sort(() => 0.5 - Math.random());
         for(const key of randomChoiceOrder) {
-          let answerBtnEl = document.createElement('button');
-          answerBtnEl.classList.add('multipleChoice');
-          answerBtnEl.dataset.id = key;
-          answerBtnEl.textContent = question.answers[key].text;
-          answerBtnEl.type = 'submit';
-          answerFragment.appendChild(answerBtnEl);
+          let answerBtn = document.createElement('button');
+          answerBtn.classList.add('multipleChoice');
+          answerBtn.dataset.id = key;
+          answerBtn.textContent = question.answers[key].text;
+          answerBtn.type = 'submit';
+          answerFragment.appendChild(answerBtn);
         }
       break;
       case 'textInput':
@@ -58,9 +58,9 @@ const questions = {
         inputEl.type = 'text';
         inputEl.id = 'text-input';
         answerFragment.appendChild(inputEl);
-        let submitBtnEl = document.createElement('input');
-        submitBtnEl.type = 'submit';
-        answerFragment.appendChild(submitBtnEl);
+        let submitBtn = document.createElement('input');
+        submitBtn.type = 'submit';
+        answerFragment.appendChild(submitBtn);
       break;
     }
     answerEl.textContent = '';
