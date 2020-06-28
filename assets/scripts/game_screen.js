@@ -1,5 +1,6 @@
 /* jshint esversion:6 */
-import {questionData} from './question_data.js';
+
+import {questions} from './game/questions.js';
 
 /* module globals */
 const timer = {
@@ -25,95 +26,7 @@ const timer = {
     return timer._counter;
   }
 };
-const questions = {
-  _index: 0,
-  count: 0,
-  renderTarget: undefined,
-  reset() {
-    this.count = 0;
-    this._index = 0;
-  },
-  get currentQuestion() {
-    return questionData[this._index];
-  },
-  render() {
-    if(!this.renderTarget) throw new ReferenceError('missing render target');
-    let question = this.currentQuestion;
-    let answerEl = this.renderTarget.querySelector('#answer-block');
-    let answerFragment = document.createDocumentFragment();
-    document.querySelector('#question-text').textContent = question.text;
-    switch(question.type) {
-      case 'boolean':
-        let trueBtnEl = document.createElement('button');
-        trueBtnEl.classList.add('boolean-true');
-        trueBtnEl.textContent = 'True';
-        trueBtnEl.type = 'submit';
-        answerFragment.appendChild(trueBtnEl);
-        const falseBtnEl = document.createElement('button');
-        falseBtnEl.classList.add('boolean-false');
-        falseBtnEl.textContent = 'False';
-        falseBtnEl.type = 'submit';
-        answerFragment.appendChild(falseBtnEl);
-      break;
-      case 'multipleChoice':
-        for(const key of Object.keys(question.answers)) {
-          let answerBtnEl = document.createElement('button');
-          answerBtnEl.classList.add('multipleChoice');
-          answerBtnEl.dataset.id = key;
-          answerBtnEl.textContent = question.answers[key].text;
-          answerBtnEl.type = 'submit';
-          answerFragment.appendChild(answerBtnEl);
-        }
-      break;
-      case 'textInput':
-        let inputEl = document.createElement('input');
-        inputEl.type = 'text';
-        inputEl.id = 'text-input';
-        answerFragment.appendChild(inputEl);
-        let submitBtnEl = document.createElement('input');
-        submitBtnEl.type = 'submit';
-        answerFragment.appendChild(submitBtnEl);
-      break;
-    }
-    answerEl.textContent = '';
-    answerEl.appendChild(answerFragment);
-  },
-  nextQuestion() {
-    this.count++;
-    this._index = (this.count - 1) % questionData.length;
-  },
-  handleAnswer(event) {
-    event.preventDefault();
-    let question = questions.currentQuestion; // 'this' isn't the questions object here
-    switch(question.type) {
-      case 'boolean':
-        const answerBool = event.submitter.classList.contains('boolean-true');
-        if(answerBool == question.answer) {
-          eventTarget.dispatchEvent(new Event('rightAnswer'));
-        } else {
-          eventTarget.dispatchEvent(new Event('wrongAnswer'));
-        }
-      break;
-      case 'multipleChoice':
-        let answerId = event.submitter.dataset.id;
-        if(question.answers[answerId].isRight) {
-          eventTarget.dispatchEvent(new Event('rightAnswer'));
-        } else {
-          eventTarget.dispatchEvent(new Event('wrongAnswer'));
-        }
-      break;
-      case 'textInput':
-        let input = event.target.querySelector('#text-input').value.trim().toLowerCase();
-        console.log(input);
-        if(question.answer == input) {
-          eventTarget.dispatchEvent(new Event('rightAnswer'));
-        } else {
-          eventTarget.dispatchEvent(new Event('wrongAnswer'));
-        }
-      break;
-    }
-  },
-};
+
 let header = {
   renderTarget: undefined,
   render() {
