@@ -16,6 +16,6 @@
 
 ### Things I'm happy with
 - I spent (probably too much) time on the underlying client-side webapp quiz game engine part of things, which is a bit hypocritical with my rationale for not using react/whatever because the class hasn't touched doing things like es6 modules / abusing the built-in event loop.
-- I'm reasonably sure it'd take minimal effort to replace quizData.js with a REST server, and the use of localStorage with backend storage.
+- I'm reasonably sure it'd take minimal effort to replace question_data.js with a REST server, and the use of localStorage with backend storage.
 - I'm also reasonably sure it wouldn't take too long to delete all of the generate/render functions and refactor the whole thing into something built around a popular framework library.
 - Styling a quiz thing with Bauhaus fonts and that 70's brown/orange/yellow pallete might be too obvious, but it's obvious because it works.
