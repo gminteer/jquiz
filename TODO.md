@@ -1,5 +1,5 @@
 # More accurately, LIST_OF_DEFECTS_AND_OR_REGRETS.md
-- ~The worst issue: after my (late) patch, the logic for figuring out whether or not the user gets high scores doesn't work correctly.~
+- ~~The worst issue: after my (late) patch, the logic for figuring out whether or not the user gets high scores doesn't work correctly.~~ This is fixed becuase it was genuinely bothering me, but we're past deadline so feel free to still take points off.
 - The block on the title screen that (should) show the last run of the quiz game doesn't actually show the last run until you refresh the page, because the two listeners for the event are happening in the wrong order.
 - Never added visual feedback/bling for right/wrong answers in the main quiz game
   - The whole thing needs a style/optimization pass. I'm tagging tons of HTML elements with ids I don't actually use in the stylesheet/code anywhere, etc.
