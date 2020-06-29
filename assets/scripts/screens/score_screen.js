@@ -147,7 +147,6 @@ function generateMain(mainEl, event) {
     let resultsEl = generateResults();
     resultsEl.classList.add('card');
     if(quizData.highScores) {
-      debugger;
       if(event.detail.score > Number(quizData.highScores[quizData.highScores.length - 1].score) || quizData.highScores.length < 10 ) {
         let formEl = generateInputForm();
         let inputEl = formEl.querySelector('#score-initials-input');
