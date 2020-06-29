@@ -4,7 +4,8 @@ const gameOverEvent = () => new CustomEvent('gameOver', {
   bubbles: true,
   detail: {
     score: score,
-    count: questions.count - 1, // questions.count is which question the player's on, which is 1 more than the number we want
+    correct: correctAnswers,
+    count: questions.count,
     length: questions.length,
     timeLeft: timer.timeLeft
   }
@@ -17,7 +18,7 @@ const timer = {
     this._counter = 60;
     this._gameOver = false;
   },
-  tick(amount = 0) { // CHANGE BACK
+  tick(amount = 1) {
     this._counter -= amount;
     if(this._counter <= 0) {
       this._counter = 0;
@@ -47,6 +48,7 @@ const header = {
 
 /* module globals */
 let score = 0;
+var correctAnswers = 0;
 var eventTarget;
 var answerTarget;
 var timerInterval;
@@ -86,6 +88,7 @@ function generateLayout(mainEl, headerEl) {
 }
 
 function rightAnswerListener() {
+  correctAnswers++;
   if(questions.currentQuestion.pointValue) {
     score += questions.currentQuestion.pointValue;
   } else {
@@ -98,6 +101,10 @@ function rightAnswerListener() {
 }
 function wrongAnswerListener() {
   if(timer.tick(5)) header.render();
+  if(questions.nextQuestion()) {
+    questions.render();
+    header.render();
+  }
 }
 function outOfQuestionsListener() {
   eventTarget.dispatchEvent(gameOverEvent());
@@ -116,6 +123,7 @@ function gameScreen(mainEl, headerEl) {
   timer.reset();
   questions.reset();
   score = 0;
+  correctAnswers = 0;
   // set up HTML, display a question
   let [questionEl, answerBlockEl] = generateLayout(mainEl, headerEl);
   questions.target = questionEl;

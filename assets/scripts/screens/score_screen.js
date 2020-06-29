@@ -68,7 +68,7 @@ function renderResults(resultsEl, event) {
   let timeLeftEl = resultsEl.querySelector('#result-time-left');
   let detail = event.detail;
   scoreEl.textContent = `${detail.score} points`;
-  countEl.textContent = `${detail.count} (of ${detail.length})`;
+  countEl.textContent = `${detail.correct} out of ${detail.count} (${Math.ceil((detail.correct / detail.count) * 100)}%)`;
   if(Number(detail.timeLeft) > 0) {
     timeLeftEl.textContent = `${detail.timeLeft} seconds`;
   } else {
@@ -84,7 +84,7 @@ function generateResults() {
   resultsEl.appendChild(resultsLabel);
   let labels = {
     'result-score': 'Score:',
-    'result-count': 'Questions Answered:',
+    'result-count': 'Correct Answers:',
     'result-time-left': 'Time Remaining:'
   };
   let resultBlockEl = generateResultBlock(labels);
