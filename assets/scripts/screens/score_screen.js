@@ -146,17 +146,26 @@ function generateMain(mainEl, event) {
   if(event.detail) {
     let resultsEl = generateResults();
     resultsEl.classList.add('card');
-    if(quizData.highScores && event.detail.score > Number(quizData.highScores[quizData.highScores.length - 1].score)) {
+    if(quizData.highScores) {
+      if(event.detail.score > Number(quizData.highScores[quizData.highScores.length - 1].score ||
+          quizData.highScores.length > 10 )) {
+        let formEl = generateInputForm();
+        let inputEl = formEl.querySelector('#score-initials-input');
+        inputEl.dataset.score = event.detail.score;
+        formEl.addEventListener('submit', submitListener);
+        resultsEl.appendChild(formEl);
+      } else {
+        let labelEl = document.createElement('h3');
+        labelEl.id = 'score-no-highscore';
+        labelEl.textContent = 'Better luck next time!';
+        resultsEl.appendChild(labelEl);
+      }
+    } else {
       let formEl = generateInputForm();
       let inputEl = formEl.querySelector('#score-initials-input');
       inputEl.dataset.score = event.detail.score;
       formEl.addEventListener('submit', submitListener);
       resultsEl.appendChild(formEl);
-    } else {
-      let labelEl = document.createElement('h3');
-      labelEl.id = 'score-no-highscore';
-      labelEl.textContent = 'Better luck next time!';
-      resultsEl.appendChild(labelEl);
     }
     fragment.appendChild(resultsEl);
   }
