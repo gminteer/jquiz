@@ -1,5 +1,6 @@
 /* jshint esversion:6 */
 var quizData;
+
 function startClickListener() {
   this.removeEventListener('click', startClickListener);
   this.dispatchEvent(new Event('startGame', {bubbles: true}));
@@ -8,9 +9,11 @@ function scoreClickListener() {
   this.removeEventListener('click', scoreClickListener);
   this.dispatchEvent(new Event('gameOver', {bubbles: true}));
 }
+
 function generateLastRun() {
   let lastRunDiv = document.createElement('div');
-  lastRunDiv.id = 'last-run';
+  lastRunDiv.id = 'title-last-run';
+  lastRunDiv.classList.add('card');
   let lastRunTitleEl = document.createElement('h2');
   lastRunTitleEl.textContent = 'Last Attempt';
   lastRunDiv.appendChild(lastRunTitleEl);
@@ -19,6 +22,7 @@ function generateLastRun() {
   lastRunDiv.appendChild(lastRunDataEl);
   return lastRunDiv;
 }
+
 function titleScreen(mainEl, headerEl, event=undefined) {
   quizData = localStorage.getItem('quizData');
   if(quizData) {
@@ -26,19 +30,12 @@ function titleScreen(mainEl, headerEl, event=undefined) {
   } else {
     quizData = {};
   }
-  if(event) {
-    console.log(event);
-  }
   let titleEl = document.createElement('h1');
-  titleEl.id = 'title';
+  titleEl.id = 'title-marquee';
   titleEl.textContent = 'jQuiz!';
   headerEl.textContent = '';
   headerEl.appendChild(titleEl);
   mainEl.textContent = '';
-  let startBtn = document.createElement('button');
-  startBtn.textContent = 'Start Game';
-  startBtn.addEventListener('click', startClickListener);
-  mainEl.appendChild(startBtn);
   var scoreDiv; // appeasing the linter
   if(quizData.lastRun) {
     scoreDiv = generateLastRun();
@@ -50,6 +47,13 @@ function titleScreen(mainEl, headerEl, event=undefined) {
   viewScoresBtn.addEventListener('click', scoreClickListener);
   scoreDiv.appendChild(viewScoresBtn);
   mainEl.appendChild(scoreDiv);
+  let startBtn = document.createElement('button');
+  startBtn.id = 'title-start-button';
+  startBtn.textContent = 'Start Game';
+  startBtn.addEventListener('click', startClickListener);
+  mainEl.appendChild(startBtn);
+  headerEl.id = 'title-header';
+  mainEl.id = 'title-main';
 }
 
 export {titleScreen};

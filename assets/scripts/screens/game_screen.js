@@ -14,10 +14,10 @@ const timer = {
   _counter: 0,
   _gameOver: false,
   reset() {
-    this._counter = 120;
+    this._counter = 60;
     this._gameOver = false;
   },
-  tick(amount = 1) {
+  tick(amount = 0) { // CHANGE BACK
     this._counter -= amount;
     if(this._counter <= 0) {
       this._counter = 0;
@@ -54,6 +54,7 @@ var timerInterval;
 function generateHeader(headerType, label) {
   let headerEl = document.createElement('div');
   headerEl.id = headerType;
+  headerEl.classList.add('game-header-row');
   let headerLabelEl = document.createElement('span');
   headerLabelEl.classList.add('label');
   headerLabelEl.textContent = label;
@@ -67,11 +68,12 @@ function generateLayout(mainEl, headerEl) {
   let headerFragment = document.createDocumentFragment();
   headerFragment.appendChild(generateHeader('game-question-counter', 'Question:'));
   headerFragment.appendChild(generateHeader('game-score', 'Score:'));
-  headerFragment.appendChild(generateHeader('game-timer', 'Time remaining:'));
+  headerFragment.appendChild(generateHeader('game-timer', 'Time left:'));
   headerEl.textContent = '';
   headerEl.appendChild(headerFragment);
   let questionEl = document.createElement('div');
   questionEl.id = 'question-block';
+  questionEl.classList.add('card');
   let questionTextEl = document.createElement('p');
   questionTextEl.id = 'question-text';
   let answerBlockEl = document.createElement('form');
@@ -131,6 +133,8 @@ function gameScreen(mainEl, headerEl) {
   eventTarget.addEventListener('outOfQuestions', outOfQuestionsListener);
   eventTarget.addEventListener('gameOver', gameOverListener);
   answerTarget.addEventListener('submit', questions.handleAnswer);
+  headerEl.id = 'game-header';
+  mainEl.id = 'game-main';
 }
 
 export {gameScreen};

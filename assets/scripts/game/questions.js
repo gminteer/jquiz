@@ -58,8 +58,9 @@ const questions = {
         inputEl.type = 'text';
         inputEl.id = 'text-input';
         answerFragment.appendChild(inputEl);
-        let submitBtn = document.createElement('input');
+        let submitBtn = document.createElement('button');
         submitBtn.type = 'submit';
+        submitBtn.textContent = 'Submit';
         answerFragment.appendChild(submitBtn);
       break;
     }
@@ -99,6 +100,7 @@ const questions = {
       break;
       case 'textInput':
         let input = event.target.querySelector('#text-input').value.trim().toLowerCase();
+        if(input == '') return;
         if(question.answer == input) {
           let event = new Event('rightAnswer', {bubbles: true});
           this.dispatchEvent(rightAnswerEvent);
